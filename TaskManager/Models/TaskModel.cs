@@ -1,5 +1,8 @@
-﻿namespace TaskManager.Models
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TaskManager.Models
 {
+    [ExcludeFromCodeCoverage]
     public class TaskModel
     {
         public Guid Id { get; set; }

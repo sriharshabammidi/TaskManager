@@ -1,10 +1,12 @@
 ﻿
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using TaskManager.Repositories;
 using TaskManager.Services;
 
 namespace TaskManager
 {
+    [ExcludeFromCodeCoverage]
     public class Program
     {
         public static void Main(string[] args)
