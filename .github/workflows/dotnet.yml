@@ -1,0 +1,66 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write  # Needed to comment on PRs!
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0
+
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore
+
+    - name: Test and collect coverage
+      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
+    
+    - name: Generate coverage report
+      run: reportgenerator -reports:./TestResults/**/coverage.cobertura.xml -targetdir:./CoverageReport -reporttypes:"Html;HtmlSummary;JsonSummary"
+    
+    - name: Upload coverage report artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: CoverageReport
+
+    - name: Get coverage percentage
+      id: coverage
+      run: |
+          COVERAGE=$(jq '.summary.linecoverage' ./CoverageReport/Summary.json)
+          echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
+      
+    - name: Comment coverage on PR
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ✅ Test coverage report is generated!
+      
+            📊 **Coverage: ${{ steps.coverage.outputs.coverage }}%** ✅
+            
+            🔗 [Download Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+      
+            📂 Open the `coverage-report` artifact and view `index.html`.
+      
