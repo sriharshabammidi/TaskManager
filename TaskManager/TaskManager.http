@@ -1,0 +1,49 @@
+@TaskManager_HostAddress = http://localhost:5069
+
+### Get all tasks
+GET https://localhost:5001/api/tasks
+Accept: application/json
+
+### Get all tasks sorted (favorited tasks on top)
+GET https://localhost:5001/api/tasks?sort=true
+Accept: application/json
+
+### Get task by ID
+GET https://localhost:5001/api/tasks/{{taskId}}
+Accept: application/json
+
+### Add a new task
+POST https://localhost:5001/api/tasks
+Content-Type: application/json
+
+{
+  "id": "{{$guid}}",
+  "name": "Finish .NET Assessment",
+  "description": "Implement all features with tests",
+  "deadline": "2025-05-15T23:59:59",
+  "status": "1",  
+  "isFavorite": true
+}
+
+### Update an existing task
+PUT https://localhost:5001/api/tasks/{{taskId}}
+Content-Type: application/json
+
+{
+  "id": "{{taskId}}",
+  "name": "Finish .NET Assessment (Updated)",
+  "description": "Updated description",
+  "deadline": "2025-05-16T23:59:59",
+  "status": "1", 
+  "isFavorite": false
+}
+
+### Move task to another status
+POST https://localhost:5001/api/tasks/{{taskId}}/move
+Content-Type: application/json
+
+"1"  
+
+### Delete task
+DELETE https://localhost:5001/api/tasks/{{taskId}}
+
