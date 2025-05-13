@@ -1,3 +1,5 @@
+![Coverage](https://img.shields.io/badge/Coverage-0%25-lightgrey)
+
 # 📝 Task Manager API
 
 A simple ASP.NET Core Web API for managing tasks. Supports adding, retrieving, updating, and deleting tasks with task status tracking.
