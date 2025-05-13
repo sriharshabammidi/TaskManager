@@ -13,6 +13,8 @@ permissions:
   
 jobs:
   build:
+    # ⛔ Skip if commit message includes [skip ci]
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
 
     steps:
@@ -51,6 +53,7 @@ jobs:
           echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
       
     - name: Comment coverage on PR
+      if: github.event_name == 'pull_request' && github.event.pull_request.number != ''
       uses: peter-evans/create-or-update-comment@v4
       with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -63,4 +66,21 @@ jobs:
             🔗 [Download Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
       
             📂 Open the `coverage-report` artifact and view `index.html`.
-      
+          edit-mode: replace
+          comment-id: coverage-comment
+          
+    - name: Update coverage badge in README
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        echo "🔧 Updating coverage badge in README"
+        PERCENT=$(printf "%.1f" "${{ steps.coverage.outputs.coverage }}")
+         # Format the badge (shields.io format)
+        BADGE_URL="https://img.shields.io/badge/Coverage-${PERCENT}%25-brightgreen"
+         # Replace the existing badge (assumes it's wrapped in a comment)
+        sed -i -E "s|!\[Coverage\]\(.*\)|![Coverage](${BADGE_URL})|g" README.md
+         git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git add README.md
+        git commit -m "[skip ci] Update coverage badge to ${PERCENT}%" || echo "No changes to commit"
+        git push
+    
