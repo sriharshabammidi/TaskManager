@@ -1,4 +1,4 @@
-![Coverage](https://img.shields.io/badge/Coverage-0%25-lightgrey)
+![Coverage](https://img.shields.io/badge/Coverage-81.7%25-brightgreen)
 
 # 📝 Task Manager API
 
